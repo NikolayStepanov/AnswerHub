@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NikolayStepanov/AnswerHub/v2/pkg/logger"
+	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
 	"go.uber.org/zap"
 )
 

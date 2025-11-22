@@ -1,6 +1,6 @@
 package dto
 
 type QuestionDTO struct {
-	ID   int64  `json:"id"`
+	BaseDTO
 	Text string `json:"text"`
 }

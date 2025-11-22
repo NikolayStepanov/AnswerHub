@@ -7,12 +7,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/config"
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/delivery/http/handlers"
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/mw"
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/server"
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/service"
-	"github.com/NikolayStepanov/AnswerHub/v2/pkg/logger"
+	"github.com/NikolayStepanov/AnswerHub/internal/config"
+	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers"
+	"github.com/NikolayStepanov/AnswerHub/internal/mw"
+	"github.com/NikolayStepanov/AnswerHub/internal/server"
+	"github.com/NikolayStepanov/AnswerHub/internal/service"
+	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 	"go.uber.org/zap"
 )

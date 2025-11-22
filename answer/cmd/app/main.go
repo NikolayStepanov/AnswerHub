@@ -1,6 +1,6 @@
 package main
 
-import "github.com/NikolayStepanov/AnswerHub/v2/internal/app"
+import "github.com/NikolayStepanov/AnswerHub/internal/app"
 
 func main() {
 	app.Run()

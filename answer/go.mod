@@ -1,4 +1,4 @@
-module github.com/NikolayStepanov/AnswerHub/v2
+module github.com/NikolayStepanov/AnswerHub
 
 go 1.25.4
 

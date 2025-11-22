@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/config"
+	"github.com/NikolayStepanov/AnswerHub/internal/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"

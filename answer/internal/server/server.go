@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/config"
+	"github.com/NikolayStepanov/AnswerHub/internal/config"
 )
 
 type Server struct {

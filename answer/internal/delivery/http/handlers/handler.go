@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/delivery/http/handlers/answers"
-	"github.com/NikolayStepanov/AnswerHub/v2/internal/delivery/http/handlers/questions"
+	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/answers"
+	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/questions"
 )
 
 type Handler struct {
