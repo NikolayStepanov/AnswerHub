@@ -5,7 +5,9 @@ import "net/http"
 func (h *Handler) RegisterRoutes() *http.ServeMux {
 	r := http.NewServeMux()
 
-	r.HandleFunc("GET /", h.GetQuestions)
-
+	r.HandleFunc(http.MethodGet+" "+"/", h.GetQuestions)
+	r.HandleFunc(http.MethodPost+" "+"/", h.CreateQuestion)
+	r.HandleFunc(http.MethodDelete+" "+"/{id}", h.DeleteQuestion)
+	r.HandleFunc(http.MethodGet+" "+"/{id}", h.GetQuestionWithAnswers)
 	return r
 }
