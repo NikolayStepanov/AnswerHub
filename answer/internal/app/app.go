@@ -2,14 +2,13 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
 
 	"github.com/NikolayStepanov/AnswerHub/v2/internal/config"
+	"github.com/NikolayStepanov/AnswerHub/v2/internal/delivery/http/handlers"
 	"github.com/NikolayStepanov/AnswerHub/v2/internal/mw"
 	"github.com/NikolayStepanov/AnswerHub/v2/internal/server"
 	"github.com/NikolayStepanov/AnswerHub/v2/internal/service"
@@ -18,36 +17,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type muxer interface {
-	Handle(pattern string, handler http.Handler)
-}
-
 type App struct {
 	config   *config.Config
-	mux      muxer
 	server   *server.Server
 	services *service.Services
-}
-
-func RegisterCartHandlers(config *config.Config, mux *http.ServeMux) {
-	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if req.URL.Path != "/" {
-			http.NotFound(w, req)
-			return
-		}
-		fmt.Fprintf(w, "Welcome to the home page!")
-	})
+	handler  *handlers.Handler
 }
 
 func NewApp(config *config.Config) (*App, error) {
-	mux := http.NewServeMux()
-
-	RegisterCartHandlers(config, mux)
-	server := server.NewServer(config, mw.LoggerMiddleware(mux))
+	handler := handlers.NewHandler()
+	server := server.NewServer(config, mw.LoggerMiddleware(handler))
 	return &App{
-		config: config,
-		mux:    mux,
-		server: server,
+		config:  config,
+		server:  server,
+		handler: handler,
 	}, nil
 }
 
