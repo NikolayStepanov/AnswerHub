@@ -5,6 +5,7 @@ import (
 
 	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/answers"
 	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/questions"
+	"github.com/NikolayStepanov/AnswerHub/internal/service"
 )
 
 type Handler struct {
@@ -13,7 +14,7 @@ type Handler struct {
 	Answers   *answers.Handler
 }
 
-func NewHandler() *Handler {
+func NewHandler(answer service.Answer, question service.Question) *Handler {
 	handler := &Handler{
 		router: http.NewServeMux(),
 	}

@@ -12,6 +12,8 @@ import (
 	"github.com/NikolayStepanov/AnswerHub/internal/mw"
 	"github.com/NikolayStepanov/AnswerHub/internal/server"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
+	"github.com/NikolayStepanov/AnswerHub/internal/service/answer"
+	"github.com/NikolayStepanov/AnswerHub/internal/service/question"
 	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 	"go.uber.org/zap"
@@ -25,7 +27,9 @@ type App struct {
 }
 
 func NewApp(config *config.Config) (*App, error) {
-	handler := handlers.NewHandler()
+	answersService := answer.NewService()
+	questionService := question.NewService()
+	handler := handlers.NewHandler(answersService, questionService)
 	server := server.NewServer(config, mw.LoggerMiddleware(handler))
 	return &App{
 		config:  config,
