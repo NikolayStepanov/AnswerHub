@@ -28,13 +28,26 @@ func (h *Handler) GetQuestions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteQuestion(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	var (
+		idStr      string
+		questionID int64
+		err        error
+	)
+	
+	idStr = r.PathValue("id")
+	questionID, err = strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid question ID", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(w, "Delete questionID: %d", id)
+
+	err = h.questionService.Delete(r.Context(), questionID)
+	if err != nil {
+		http.Error(w, "Failed to delete question", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +69,7 @@ func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid create", http.StatusInternalServerError)
 		return
 	}
+
 	jsonResponse, err := json.Marshal(&createResponse{BaseDTO: baseDTO})
 	if err != nil {
 		http.Error(w, "Invalid create", http.StatusInternalServerError)

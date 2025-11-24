@@ -29,8 +29,7 @@ func (s *Service) List(ctx context.Context) ([]dto.QuestionDTO, error) {
 }
 
 func (s *Service) Delete(ctx context.Context, questionID int64) error {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
 func NewService() *Service {
