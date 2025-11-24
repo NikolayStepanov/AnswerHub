@@ -40,3 +40,7 @@ func (s *Service) GetAnswersByQuestionID(ctx context.Context, questionID int64) 
 		},
 	}, nil
 }
+
+func (s *Service) DeleteAnswersByQuestionID(ctx context.Context, questionID int64) error {
+	return nil
+}

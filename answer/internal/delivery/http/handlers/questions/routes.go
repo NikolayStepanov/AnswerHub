@@ -7,6 +7,5 @@ func (h *Handler) RegisterRoutes() *http.ServeMux {
 
 	r.HandleFunc(http.MethodGet+" "+"/", h.GetQuestions)
 	r.HandleFunc(http.MethodPost+" "+"/", h.CreateQuestion)
-	r.HandleFunc(http.MethodDelete+" "+"/{id}", h.DeleteQuestion)
 	return r
 }

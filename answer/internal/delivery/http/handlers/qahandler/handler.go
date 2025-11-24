@@ -57,3 +57,30 @@ func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 }
+
+func (h *Handler) DeleteQuestionWithAnswers(w http.ResponseWriter, r *http.Request) {
+	var (
+		idStr      string
+		questionID int64
+		err        error
+	)
+
+	idStr = r.PathValue("id")
+	questionID, err = strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid question ID", http.StatusBadRequest)
+		return
+	}
+	err = h.answerService.DeleteAnswersByQuestionID(r.Context(), questionID)
+	if err != nil {
+		http.Error(w, "Failed to delete question", http.StatusInternalServerError)
+	}
+
+	err = h.questionService.Delete(r.Context(), questionID)
+	if err != nil {
+		http.Error(w, "Failed to delete question", http.StatusInternalServerError)
+		return
+	}
+	
+	w.WriteHeader(http.StatusNoContent)
+}

@@ -12,6 +12,7 @@ type Answer interface {
 	Create(ctx context.Context, questionID int64, userID uuid.UUID, text string) (dto.BaseDTO, error)
 	Delete(ctx context.Context, answerID int64) error
 	GetAnswersByQuestionID(ctx context.Context, questionID int64) ([]dto.AnswerDTO, error)
+	DeleteAnswersByQuestionID(ctx context.Context, questionID int64) error
 }
 
 type Question interface {
