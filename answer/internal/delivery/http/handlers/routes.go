@@ -11,6 +11,7 @@ func (h *Handler) setupRoutes() {
 	h.setupQuestionsRoutes()
 	h.setupAnswersRoutes()
 	h.setupAnswersNestedRoutes()
+	h.setupQAHandlerRoutes()
 }
 
 func (h *Handler) setupQuestionsRoutes() {
@@ -26,4 +27,9 @@ func (h *Handler) setupAnswersRoutes() {
 func (h *Handler) setupAnswersNestedRoutes() {
 	answersNestedRouter := h.Answers.RegisterNestedRoutes()
 	h.router.Handle(questionsPath+"/{id}"+answersPath+"/", http.StripPrefix(questionsPath, answersNestedRouter))
+}
+
+func (h *Handler) setupQAHandlerRoutes() {
+	qaRouter := h.QAHandler.RegisterRoutes()
+	h.router.Handle(questionsPath+"/{id}", http.StripPrefix(questionsPath, qaRouter))
 }

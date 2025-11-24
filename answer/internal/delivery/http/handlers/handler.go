@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/answers"
+	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/qahandler"
 	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/questions"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
 )
@@ -12,6 +13,7 @@ type Handler struct {
 	router    *http.ServeMux
 	Questions *questions.Handler
 	Answers   *answers.Handler
+	QAHandler *qahandler.Handler
 }
 
 func NewHandler(answer service.Answer, question service.Question) *Handler {
@@ -21,6 +23,7 @@ func NewHandler(answer service.Answer, question service.Question) *Handler {
 
 	handler.Answers = answers.NewHandler()
 	handler.Questions = questions.NewHandler()
+	handler.QAHandler = qahandler.NewHandler()
 
 	handler.setupRoutes()
 	return handler

@@ -11,8 +11,13 @@ type Service struct {
 }
 
 func (s *Service) Get(ctx context.Context, questionID int64) (dto.QuestionDTO, error) {
-	//TODO implement me
-	panic("implement me")
+	return dto.QuestionDTO{
+		BaseDTO: dto.BaseDTO{
+			ID:        questionID,
+			CreatedAt: time.Now(),
+		},
+		Text: "question test",
+	}, nil
 }
 
 func (s *Service) Create(ctx context.Context, text string) (dto.BaseDTO, error) {

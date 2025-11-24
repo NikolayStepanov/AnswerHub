@@ -33,7 +33,7 @@ func (h *Handler) DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 		questionID int64
 		err        error
 	)
-	
+
 	idStr = r.PathValue("id")
 	questionID, err = strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -78,14 +78,4 @@ func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResponse)
-}
-
-func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid question ID", http.StatusBadRequest)
-		return
-	}
-	fmt.Fprintf(w, "Question with answers questionID: %d", id)
 }
