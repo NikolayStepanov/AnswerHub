@@ -1,44 +1,69 @@
 package answers
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
+	"github.com/NikolayStepanov/AnswerHub/internal/service"
 )
 
 type Handler struct {
+	answerService service.Answer
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(answer service.Answer) *Handler {
+	return &Handler{answerService: answer}
 }
 
 func (h *Handler) GetAnswer(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	var (
+		idStr     string
+		answerID  int64
+		err       error
+		answerDTO dto.AnswerDTO
+	)
+
+	idStr = r.PathValue("id")
+	answerID, err = strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid answerID", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(w, "answerID: %d", id)
+	answerDTO, err = h.answerService.Get(r.Context(), answerID)
+	if err != nil {
+		http.Error(w, "Failed get answer", http.StatusInternalServerError)
+		return
+	}
+	jsonResponse, err := json.Marshal(&getAnswerResponse{answerDTO})
+	if err != nil {
+		http.Error(w, "Failed get answer", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }
 
 func (h *Handler) DeleteAnswer(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	var (
+		idStr    string
+		answerID int64
+		err      error
+	)
+
+	idStr = r.PathValue("id")
+	answerID, err = strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid answerID", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(w, "Delete answerID: %d", id)
-}
-
-func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
-	idQuestionStr := r.PathValue("id")
-	id, err := strconv.Atoi(idQuestionStr)
+	err = h.answerService.Delete(r.Context(), answerID)
 	if err != nil {
-		http.Error(w, "Invalid questionID", http.StatusBadRequest)
+		http.Error(w, "Failed delete answer", http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "Create questionID: %d", id)
+	w.WriteHeader(http.StatusNoContent)
 }

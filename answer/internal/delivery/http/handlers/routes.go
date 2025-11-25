@@ -10,7 +10,6 @@ const (
 func (h *Handler) setupRoutes() {
 	h.setupQuestionsRoutes()
 	h.setupAnswersRoutes()
-	h.setupAnswersNestedRoutes()
 	h.setupQAHandlerRoutes()
 }
 
@@ -22,11 +21,6 @@ func (h *Handler) setupQuestionsRoutes() {
 func (h *Handler) setupAnswersRoutes() {
 	answersRouter := h.Answers.RegisterRoutes()
 	h.router.Handle(answersPath+"/", http.StripPrefix(answersPath, answersRouter))
-}
-
-func (h *Handler) setupAnswersNestedRoutes() {
-	answersNestedRouter := h.Answers.RegisterNestedRoutes()
-	h.router.Handle(questionsPath+"/{id}"+answersPath+"/", http.StripPrefix(questionsPath, answersNestedRouter))
 }
 
 func (h *Handler) setupQAHandlerRoutes() {

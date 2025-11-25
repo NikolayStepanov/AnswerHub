@@ -13,6 +13,7 @@ import (
 	"github.com/NikolayStepanov/AnswerHub/internal/server"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
 	"github.com/NikolayStepanov/AnswerHub/internal/service/answer"
+	"github.com/NikolayStepanov/AnswerHub/internal/service/qa"
 	"github.com/NikolayStepanov/AnswerHub/internal/service/question"
 	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
 	"github.com/fsnotify/fsnotify"
@@ -29,7 +30,8 @@ type App struct {
 func NewApp(config *config.Config) (*App, error) {
 	answersService := answer.NewService()
 	questionService := question.NewService()
-	handler := handlers.NewHandler(answersService, questionService)
+	qaService := qa.NewService(answersService, questionService)
+	handler := handlers.NewHandler(answersService, questionService, qaService)
 	server := server.NewServer(config, mw.LoggerMiddleware(handler))
 	return &App{
 		config:  config,

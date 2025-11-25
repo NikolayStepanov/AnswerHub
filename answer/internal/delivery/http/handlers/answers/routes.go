@@ -9,10 +9,3 @@ func (h *Handler) RegisterRoutes() *http.ServeMux {
 	r.HandleFunc(http.MethodDelete+" "+"/{id}", h.DeleteAnswer)
 	return r
 }
-
-func (h *Handler) RegisterNestedRoutes() *http.ServeMux {
-	r := http.NewServeMux()
-
-	r.HandleFunc(http.MethodPost+" "+"/{id}/answers/", h.CreateAnswer)
-	return r
-}

@@ -10,6 +10,10 @@ import (
 type Service struct {
 }
 
+func (s *Service) Exists(ctx context.Context, questionID int64) (bool, error) {
+	return true, nil
+}
+
 func (s *Service) Get(ctx context.Context, questionID int64) (dto.QuestionDTO, error) {
 	return dto.QuestionDTO{
 		BaseDTO: dto.BaseDTO{
@@ -29,8 +33,16 @@ func (s *Service) Create(ctx context.Context, text string) (dto.BaseDTO, error) 
 }
 
 func (s *Service) List(ctx context.Context) ([]dto.QuestionDTO, error) {
-	//TODO implement me
-	panic("implement me")
+	return []dto.QuestionDTO{
+		{
+			BaseDTO: dto.BaseDTO{ID: 1, CreatedAt: time.Now()},
+			Text:    "question test1",
+		},
+		{
+			BaseDTO: dto.BaseDTO{ID: 2, CreatedAt: time.Now()},
+			Text:    "question test2",
+		},
+	}, nil
 }
 
 func (s *Service) Delete(ctx context.Context, questionID int64) error {
