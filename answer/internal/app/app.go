@@ -46,12 +46,7 @@ func Run() {
 	defer cancel()
 
 	logger.InitLogger(&cfg.Logger)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			panic(err)
-		}
-	}()
+	defer logger.Sync()
 	watcherLoggerFile := logger.ObserveLoggerConfigFile(ctx, cfg)
 	defer func(watcherLoggerFile *fsnotify.Watcher) {
 		err := watcherLoggerFile.Close()

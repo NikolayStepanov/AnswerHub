@@ -1,10 +1,16 @@
 package config
 
+import (
+	"os"
+	"path/filepath"
+)
+
 const (
 	defaultHttpHost = ""
 	defaultHttpPort = "8082"
 
-	defaultLoggerConfigFileName = "configs/logger.yml"
+	defaultConfigDir            = "configs/"
+	defaultLoggerConfigFileName = "/configs/logger.yml"
 	defaultLoggerLevel          = "debug"
 	defaultLoggerOutputPaths    = "stdout"
 )
@@ -32,7 +38,13 @@ func Init() *Config {
 	cfg.HTTP.Port = defaultHttpPort
 	cfg.HTTP.Host = defaultHttpHost
 
-	cfg.Logger.NameConfigFile = defaultLoggerConfigFileName
+	configDir := os.Getenv("CONFIG_DIR")
+	if configDir == "" {
+		configDir = defaultConfigDir
+	}
+
+	loggerConfigPath := filepath.Join(configDir, "logger.yml")
+	cfg.Logger.NameConfigFile = loggerConfigPath
 	cfg.Logger.Level = defaultLoggerLevel
 	cfg.Logger.OutputPaths = []string{
 		defaultLoggerOutputPaths,
