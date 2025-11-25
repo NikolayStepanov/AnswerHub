@@ -8,8 +8,8 @@ services:
     depends_on:
       postgres-db:
         condition: service_started
-#      goose:
-#        condition: service_completed_successfully
+      goose:
+        condition: service_completed_successfully
     environment:
       POSTGRES_CONNECTION: postgresql://postgres:postgres@postgres-db:5432/postgres?sslmode=disable&pool_max_conns=10
   postgres-db:
@@ -28,19 +28,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "postgres"
     volumes:
-      - .:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/postgresql/data
-#  goose:
-#    container_name: goose
-#    image: gomicro/goose:latest
-#    depends_on:
-#      postgres-db:
-#        condition: service_healthy
-#    volumes:
-#      - ./loms/migrations:/migrations
-#    command: ["goose", "-dir", "/migrations", "postgres", "postgresql://postgres:postgres@postgres-db:5432/postgres", "up"]
+      - db-data:/var/lib/postgresql
+  goose:
+    container_name: goose
+    image: gomicro/goose:latest
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    volumes:
+      - ./answer/migrations:/migrations
+    command: ["goose", "-dir", "/migrations", "postgres", "postgresql://postgres:postgres@postgres-db:5432/postgres", "up"]
 volumes:
   db-data:
-    driver: local
-  prometheus_data:
     driver: local
