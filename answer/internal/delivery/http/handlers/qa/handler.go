@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
 	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
+	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -19,60 +19,49 @@ func NewHandler(qa service.QA) *Handler {
 }
 
 func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request) {
-	var (
-		idStr               string
-		questionID          int64
-		questionResponseDTO dto.QuestionResponseDTO
-		err                 error
-	)
-
-	idStr = r.PathValue("id")
-	questionID, err = strconv.ParseInt(idStr, 10, 64)
+	idStr := r.PathValue("id")
+	questionID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
+		logger.Warn("Invalid questionID", zap.String("id", idStr), zap.Error(err))
 		http.Error(w, "Invalid question ID", http.StatusBadRequest)
 		return
 	}
-	questionResponseDTO, err = h.qa.GetQuestionWithAnswers(r.Context(), questionID)
+	qa, err := h.qa.GetQuestionWithAnswers(r.Context(), questionID)
 	if err != nil {
-		http.Error(w, "Failed to get question", http.StatusInternalServerError)
+		logger.Error("Failed to get question with answers", zap.Int64(" questionID", questionID), zap.Error(err))
+		http.Error(w, "Failed to get question with answers", http.StatusInternalServerError)
 		return
 	}
-	jsonResponse, err := json.Marshal(&getQuestionResponse{questionResponseDTO})
-	if err != nil {
-		http.Error(w, "Failed to get question", http.StatusInternalServerError)
-		return
-	}
+
+	response := ToQuestionResponse(qa)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Failed to encode response", zap.Error(err))
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
-	var (
-		req     createAnswerRequest
-		err     error
-		baseDTO dto.BaseDTO
-	)
-
-	err = json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		logger.Debug(err.Error())
+	var req CreateAnswerRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Warn("Invalid request body", zap.Error(err))
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	}
+
+	base, err := h.qa.CreateAnswer(r.Context(), req.QuestionID, req.UserID, req.Text)
+	if err != nil {
+		logger.Error("Failed to create answer", zap.Error(err))
+		http.Error(w, "Failed to create answer", http.StatusInternalServerError)
 		return
 	}
 
-	baseDTO, err = h.qa.CreateAnswer(r.Context(), req.QuestionID, req.UserID, req.Text)
-	if err != nil {
-		http.Error(w, "Invalid create", http.StatusInternalServerError)
-		return
-	}
-
-	jsonResponse, err := json.Marshal(&createAnswerResponse{BaseDTO: baseDTO})
-	if err != nil {
-		http.Error(w, "Invalid create", http.StatusInternalServerError)
-		return
-	}
+	response := ToBaseResponse(base)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write(jsonResponse)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Failed to encode response", zap.Error(err))
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }

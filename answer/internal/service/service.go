@@ -3,37 +3,38 @@ package service
 import (
 	"context"
 
-	"github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
+	"github.com/NikolayStepanov/AnswerHub/internal/domain"
 	"github.com/google/uuid"
 )
 
 type Answer interface {
-	Get(ctx context.Context, answerID int64) (dto.AnswerDTO, error)
-	Create(ctx context.Context, questionID int64, userID uuid.UUID, text string) (dto.BaseDTO, error)
+	Get(ctx context.Context, answerID int64) (domain.Answer, error)
+	Create(ctx context.Context, questionID int64, userID uuid.UUID, text string) (domain.Base, error)
 	Delete(ctx context.Context, answerID int64) error
-	GetAnswersByQuestionID(ctx context.Context, questionID int64) ([]dto.AnswerDTO, error)
 }
 
 type Question interface {
-	Get(ctx context.Context, questionID int64) (dto.QuestionDTO, error)
+	Get(ctx context.Context, questionID int64) (domain.Question, error)
 	Exists(ctx context.Context, questionID int64) (bool, error)
-	Create(ctx context.Context, text string) (dto.BaseDTO, error)
-	List(ctx context.Context) ([]dto.QuestionDTO, error)
+	Create(ctx context.Context, text string) (domain.Base, error)
+	List(ctx context.Context) ([]domain.Question, error)
 	Delete(ctx context.Context, questionID int64) error
 }
 
 type QA interface {
-	GetQuestionWithAnswers(ctx context.Context, questionID int64) (dto.QuestionResponseDTO, error)
-	CreateAnswer(ctx context.Context, questionID int64, userID uuid.UUID, text string) (dto.BaseDTO, error)
+	GetQuestionWithAnswers(ctx context.Context, questionID int64) (domain.QA, error)
+	CreateAnswer(ctx context.Context, questionID int64, userID uuid.UUID, text string) (domain.Base, error)
 }
 type Services struct {
 	Answer   Answer
 	Question Question
+	QA       QA
 }
 
-func NewServices(answer Answer, question Question) *Services {
+func NewServices(answer Answer, question Question, qa QA) *Services {
 	return &Services{
 		answer,
 		question,
+		qa,
 	}
 }

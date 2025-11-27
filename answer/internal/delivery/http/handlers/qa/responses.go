@@ -1,11 +1,19 @@
 package qa
 
-import "github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
+import (
+	"time"
 
-type getQuestionResponse struct {
-	dto.QuestionResponseDTO
+	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers/answers"
+)
+
+type QuestionResponse struct {
+	ID        int64                    `json:"id"`
+	Text      string                   `json:"text"`
+	CreatedAt time.Time                `json:"created_at"`
+	Answers   []answers.AnswerResponse `json:"answers"`
 }
 
-type createAnswerResponse struct {
-	BaseDTO dto.BaseDTO
+type BaseResponse struct {
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
 }

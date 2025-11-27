@@ -4,60 +4,54 @@ import (
 	"context"
 	"errors"
 
-	"github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
+	"github.com/NikolayStepanov/AnswerHub/internal/domain"
+	"github.com/NikolayStepanov/AnswerHub/internal/repository"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
 	"github.com/google/uuid"
 )
 
 type Service struct {
-	answer   service.Answer
+	rep      repository.QA
 	question service.Question
+	answer   service.Answer
 }
 
-func (s *Service) GetQuestionWithAnswers(ctx context.Context, questionID int64) (dto.QuestionResponseDTO, error) {
+func NewService(rep repository.QA, answer service.Answer, question service.Question) *Service {
+	return &Service{rep, question, answer}
+}
+
+func (s *Service) GetQuestionWithAnswers(ctx context.Context, questionID int64) (domain.QA, error) {
 	var (
-		questionDTO dto.QuestionDTO
-		answersDTO  []dto.AnswerDTO
-		err         error
+		qa  domain.QA
+		err error
 	)
-	questionDTO, err = s.question.Get(ctx, questionID)
+
+	qa, err = s.rep.GetQuestionWithAnswers(ctx, questionID)
 	if err != nil {
-		return dto.QuestionResponseDTO{}, err
+		return domain.QA{}, err
 	}
 
-	answersDTO, err = s.answer.GetAnswersByQuestionID(ctx, questionID)
-	if err != nil {
-		return dto.QuestionResponseDTO{}, err
-	}
-	answersResponses := dto.ToAnswerResponseList(answersDTO)
-	return dto.QuestionResponseDTO{
-		QuestionDTO:        questionDTO,
-		AnswersResponseDTO: answersResponses,
-	}, nil
+	return qa, nil
 }
 
-func (s *Service) CreateAnswer(ctx context.Context, questionID int64, userID uuid.UUID, text string) (dto.BaseDTO, error) {
+func (s *Service) CreateAnswer(ctx context.Context, questionID int64, userID uuid.UUID, text string) (domain.Base, error) {
 	var (
-		baseDTO dto.BaseDTO
-		exist   bool
-		err     error
+		base  domain.Base
+		exist bool
+		err   error
 	)
 
 	exist, err = s.question.Exists(ctx, questionID)
 	if err != nil {
-		return dto.BaseDTO{}, err
+		return domain.Base{}, err
 	}
 	if !exist {
-		return dto.BaseDTO{}, errors.New("question does not exist")
+		return domain.Base{}, errors.New("question does not exist")
 	}
 
-	baseDTO, err = s.answer.Create(ctx, questionID, userID, text)
+	base, err = s.answer.Create(ctx, questionID, userID, text)
 	if err != nil {
-		return dto.BaseDTO{}, err
+		return domain.Base{}, err
 	}
-	return baseDTO, nil
-}
-
-func NewService(answer service.Answer, question service.Question) *Service {
-	return &Service{answer, question}
+	return base, nil
 }

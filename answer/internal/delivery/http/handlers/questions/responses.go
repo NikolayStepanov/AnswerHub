@@ -1,11 +1,18 @@
 package questions
 
-import "github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
+import (
+	"time"
+)
 
-type createResponse struct {
-	BaseDTO dto.BaseDTO
+type BaseResponse struct {
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
 }
-
 type List struct {
-	Questions []dto.QuestionDTO
+	Questions []QuestionResponse `json:"questions"`
+}
+type QuestionResponse struct {
+	ID        int64     `json:"id"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"created_at"`
 }

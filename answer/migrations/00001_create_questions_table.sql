@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE questions (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     text TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

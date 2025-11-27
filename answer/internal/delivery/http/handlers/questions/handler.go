@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/NikolayStepanov/AnswerHub/internal/domain/dto"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
 	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
+	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -19,75 +19,65 @@ func NewHandler(question service.Question) *Handler {
 }
 
 func (h *Handler) GetQuestions(w http.ResponseWriter, r *http.Request) {
-	var (
-		err          error
-		questions    []dto.QuestionDTO
-		jsonResponse []byte
-	)
-	questions = make([]dto.QuestionDTO, 0)
-	questions, err = h.questionService.List(r.Context())
+	questions, err := h.questionService.List(r.Context())
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	jsonResponse, err = json.Marshal(&List{questions})
-	if err != nil {
-		http.Error(w, "Invalid create", http.StatusInternalServerError)
+		logger.Error("Failed to get questions", zap.Error(err))
+		http.Error(w, "Failed to get questions", http.StatusInternalServerError)
 		return
 	}
+
+	response := ToQuestionList(questions)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Failed to encode response", zap.Error(err))
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
-	var (
-		err          error
-		req          createRequest
-		baseDTO      dto.BaseDTO
-		jsonResponse []byte
-	)
+	var req createRequest
 
-	err = json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		logger.Debug(err.Error())
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Warn("Failed to decode request", zap.Error(err))
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	baseDTO, err = h.questionService.Create(r.Context(), req.Text)
+	base, err := h.questionService.Create(r.Context(), req.Text)
 	if err != nil {
-		http.Error(w, "Invalid create", http.StatusInternalServerError)
+		http.Error(w, "Failed to create question", http.StatusInternalServerError)
 		return
 	}
 
-	jsonResponse, err = json.Marshal(&createResponse{BaseDTO: baseDTO})
-	if err != nil {
-		http.Error(w, "Invalid create", http.StatusInternalServerError)
-		return
-	}
+	response := ToBaseResponse(base)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write(jsonResponse)
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Failed to encode response", zap.Error(err))
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	var (
-		idStr      string
-		questionID int64
-		err        error
-	)
-
-	idStr = r.PathValue("id")
-	questionID, err = strconv.ParseInt(idStr, 10, 64)
+	idStr := r.PathValue("id")
+	questionID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid questionID", http.StatusBadRequest)
+		logger.Warn("Invalid question ID", zap.String("id", idStr), zap.Error(err))
+		http.Error(w, "Invalid question ID", http.StatusBadRequest)
 		return
 	}
 
-	err = h.questionService.Delete(r.Context(), questionID)
-	if err != nil {
-		http.Error(w, "Failed delete question", http.StatusInternalServerError)
+	if err := h.questionService.Delete(r.Context(), questionID); err != nil {
+		logger.Error("Failed to delete question", zap.Int64("questionID", questionID), zap.Error(err))
+		http.Error(w, "Failed to delete question", http.StatusInternalServerError)
 		return
 	}
+
+	logger.Info("Question deleted successfully", zap.Int64("questionID", questionID))
 	w.WriteHeader(http.StatusNoContent)
 }

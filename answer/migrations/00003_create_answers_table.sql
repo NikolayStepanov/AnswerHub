@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE answers (
-    id SERIAL PRIMARY KEY,
-    question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
     user_id UUID NOT NULL,
     text TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

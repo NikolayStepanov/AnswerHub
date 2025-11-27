@@ -9,6 +9,9 @@ import (
 
 	"github.com/NikolayStepanov/AnswerHub/internal/config"
 	"github.com/NikolayStepanov/AnswerHub/internal/delivery/http/handlers"
+	"github.com/NikolayStepanov/AnswerHub/internal/infrastructure/postgres/answer_rep"
+	"github.com/NikolayStepanov/AnswerHub/internal/infrastructure/postgres/qa_rep"
+	"github.com/NikolayStepanov/AnswerHub/internal/infrastructure/postgres/question_rep"
 	"github.com/NikolayStepanov/AnswerHub/internal/mw"
 	"github.com/NikolayStepanov/AnswerHub/internal/server"
 	"github.com/NikolayStepanov/AnswerHub/internal/service"
@@ -28,9 +31,13 @@ type App struct {
 }
 
 func NewApp(config *config.Config) (*App, error) {
-	answersService := answer.NewService()
-	questionService := question.NewService()
-	qaService := qa.NewService(answersService, questionService)
+	answerRepositor := answer_rep.NewRepository()
+	questionRepositor := question_rep.NewRepository()
+	qaRepositor := qa_rep.NewRepository()
+
+	answersService := answer.NewService(answerRepositor)
+	questionService := question.NewService(questionRepositor)
+	qaService := qa.NewService(qaRepositor, answersService, questionService)
 	handler := handlers.NewHandler(answersService, questionService, qaService)
 	server := server.NewServer(config, mw.LoggerMiddleware(handler))
 	return &App{

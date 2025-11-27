@@ -2,7 +2,7 @@ package qa
 
 import "github.com/google/uuid"
 
-type createAnswerRequest struct {
+type CreateAnswerRequest struct {
 	QuestionID int64     `json:"question_id"`
 	UserID     uuid.UUID `json:"user_id"`
 	Text       string    `json:"text"`
