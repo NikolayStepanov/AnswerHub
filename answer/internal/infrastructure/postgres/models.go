@@ -19,3 +19,6 @@ type GORMQuestion struct {
 	CreatedAt time.Time    `gorm:"default:now()"`
 	Answers   []GORMAnswer `gorm:"foreignKey:QuestionID"`
 }
+
+func (GORMQuestion) TableName() string { return "questions" }
+func (GORMAnswer) TableName() string   { return "answers" }

@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/NikolayStepanov/AnswerHub/internal/domain"
+	"gorm.io/gorm"
 )
 
 type Repository struct {
+	db *gorm.DB
 }
 
 func (r Repository) Get(ctx context.Context, questionID int64) (domain.Question, error) {
@@ -34,6 +36,6 @@ func (r Repository) Delete(ctx context.Context, questionID int64) error {
 	panic("implement me")
 }
 
-func NewRepository() *Repository {
-	return &Repository{}
+func NewRepository(db *gorm.DB) *Repository {
+	return &Repository{db}
 }

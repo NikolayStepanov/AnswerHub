@@ -13,12 +13,18 @@ const (
 	defaultLoggerConfigFileName = "/configs/logger.yml"
 	defaultLoggerLevel          = "debug"
 	defaultLoggerOutputPaths    = "stdout"
+
+	dbConnEnvironment = "DATA_SOURCE_NAME"
 )
 
 type (
 	Config struct {
 		HTTP   HTTPConfig
 		Logger LoggerConfig
+		DB     DB
+	}
+	DB struct {
+		Connection string `mapstructure:"connection"`
 	}
 	HTTPConfig struct {
 		Host string `mapstructure:"host"`
@@ -34,7 +40,7 @@ type (
 
 func Init() *Config {
 	cfg := Config{}
-
+	cfg.getEnvironmentVariables()
 	cfg.HTTP.Port = defaultHttpPort
 	cfg.HTTP.Host = defaultHttpHost
 
@@ -50,4 +56,8 @@ func Init() *Config {
 		defaultLoggerOutputPaths,
 	}
 	return &cfg
+}
+
+func (c *Config) getEnvironmentVariables() {
+	c.DB.Connection = os.Getenv(dbConnEnvironment)
 }

@@ -21,6 +21,8 @@ import (
 	"github.com/NikolayStepanov/AnswerHub/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type App struct {
@@ -31,9 +33,14 @@ type App struct {
 }
 
 func NewApp(config *config.Config) (*App, error) {
-	answerRepositor := answer_rep.NewRepository()
-	questionRepositor := question_rep.NewRepository()
-	qaRepositor := qa_rep.NewRepository()
+	dsn := config.DB.Connection
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		logger.Fatal("error connecting to the database", zap.Error(err))
+	}
+	answerRepositor := answer_rep.NewRepository(db)
+	questionRepositor := question_rep.NewRepository(db)
+	qaRepositor := qa_rep.NewRepository(db)
 
 	answersService := answer.NewService(answerRepositor)
 	questionService := question.NewService(questionRepositor)

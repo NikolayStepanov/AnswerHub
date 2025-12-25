@@ -4,15 +4,18 @@ import (
 	"context"
 
 	"github.com/NikolayStepanov/AnswerHub/internal/domain"
+	"gorm.io/gorm"
 )
 
-type Repository struct{}
+type Repository struct {
+	db *gorm.DB
+}
 
 func (r Repository) GetQuestionWithAnswers(ctx context.Context, questionID int64) (domain.QA, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func NewRepository() *Repository {
-	return &Repository{}
+func NewRepository(db *gorm.DB) *Repository {
+	return &Repository{db}
 }
