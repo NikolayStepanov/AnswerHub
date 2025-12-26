@@ -29,7 +29,7 @@ func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request)
 	qa, err := h.qa.GetQuestionWithAnswers(r.Context(), questionID)
 	if err != nil {
 		logger.Error("Failed to get question with answers", zap.Int64(" questionID", questionID), zap.Error(err))
-		http.Error(w, "Failed to get question with answers", http.StatusInternalServerError)
+		http.Error(w, "Failed to get question with answers", http.StatusNotFound)
 		return
 	}
 
@@ -55,13 +55,13 @@ func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Warn("Invalid request body", zap.Error(err))
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Invalid request body", http.StatusInternalServerError)
 	}
 
 	base, err := h.qa.CreateAnswer(r.Context(), questionID, req.UserID, req.Text)
 	if err != nil {
 		logger.Error("Failed to create answer", zap.Error(err))
-		http.Error(w, "Failed to create answer", http.StatusInternalServerError)
+		http.Error(w, "Failed to create answer", http.StatusBadRequest)
 		return
 	}
 

@@ -39,3 +39,19 @@ func ToQuestions(dbQuestions []postgres.GORMQuestion) []Question {
 	}
 	return questions
 }
+
+func ToAnswers(dbAnswers []postgres.GORMAnswer) []Answer {
+	answers := make([]Answer, 0, len(dbAnswers))
+	for _, answer := range dbAnswers {
+		answers = append(answers, Answer{
+			Base: Base{
+				ID:        answer.ID,
+				CreatedAt: answer.CreatedAt,
+			},
+			QuestionID: answer.QuestionID,
+			UserID:     answer.UserID,
+			Text:       answer.Text,
+		})
+	}
+	return answers
+}

@@ -22,7 +22,7 @@ func (h *Handler) GetQuestions(w http.ResponseWriter, r *http.Request) {
 	questions, err := h.questionService.List(r.Context())
 	if err != nil {
 		logger.Error("Failed to get questions", zap.Error(err))
-		http.Error(w, "Failed to get questions", http.StatusInternalServerError)
+		http.Error(w, "Failed to get questions", http.StatusBadRequest)
 		return
 	}
 
@@ -47,7 +47,7 @@ func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 
 	base, err := h.questionService.Create(r.Context(), req.Text)
 	if err != nil {
-		http.Error(w, "Failed to create question", http.StatusInternalServerError)
+		http.Error(w, "Failed to create question", http.StatusBadRequest)
 		return
 	}
 

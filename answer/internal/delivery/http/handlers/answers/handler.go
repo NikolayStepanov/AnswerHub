@@ -30,7 +30,7 @@ func (h *Handler) GetAnswer(w http.ResponseWriter, r *http.Request) {
 	answer, err := h.answerService.Get(r.Context(), answerID)
 	if err != nil {
 		logger.Error("Failed to get answer", zap.Int64("answerID", answerID), zap.Error(err))
-		http.Error(w, "Failed to get answer", http.StatusInternalServerError)
+		http.Error(w, "Failed to get answer", http.StatusNotFound)
 		return
 	}
 
