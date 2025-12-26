@@ -30,6 +30,7 @@ type App struct {
 	server   *server.Server
 	services *service.Services
 	handler  *handlers.Handler
+	db       *gorm.DB
 }
 
 func NewApp(config *config.Config) (*App, error) {
@@ -48,6 +49,7 @@ func NewApp(config *config.Config) (*App, error) {
 	handler := handlers.NewHandler(answersService, questionService, qaService)
 	server := server.NewServer(config, mw.LoggerMiddleware(handler))
 	return &App{
+		db:      db,
 		config:  config,
 		server:  server,
 		handler: handler,
@@ -94,6 +96,15 @@ func Run() {
 			logger.Error("error occurred on server shutting down", zap.Error(err))
 		}
 	}()
+	sqlDB, err := app.db.DB()
+	if err != nil {
+		logger.Error("failed to get sql DB", zap.Error(err))
+	} else {
+		err := sqlDB.Close()
+		if err != nil {
+			logger.Error("failed to close DB", zap.Error(err))
+		}
+	}
 	wgShutdown.Wait()
 	logger.Info("answer stopped")
 }
