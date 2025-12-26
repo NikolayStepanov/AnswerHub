@@ -44,13 +44,21 @@ func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
+	logger.Info("create new answer")
 	var req CreateAnswerRequest
+	idStr := r.PathValue("id")
+	questionID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		logger.Warn("Invalid questionID", zap.String("id", idStr), zap.Error(err))
+		http.Error(w, "Invalid question ID", http.StatusBadRequest)
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Warn("Invalid request body", zap.Error(err))
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 	}
 
-	base, err := h.qa.CreateAnswer(r.Context(), req.QuestionID, req.UserID, req.Text)
+	base, err := h.qa.CreateAnswer(r.Context(), questionID, req.UserID, req.Text)
 	if err != nil {
 		logger.Error("Failed to create answer", zap.Error(err))
 		http.Error(w, "Failed to create answer", http.StatusInternalServerError)

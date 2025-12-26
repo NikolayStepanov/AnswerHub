@@ -3,7 +3,6 @@ package question_rep
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/NikolayStepanov/AnswerHub/internal/domain"
 	"github.com/NikolayStepanov/AnswerHub/internal/infrastructure/postgres"
@@ -11,6 +10,8 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+var ErrNotFound = errors.New("record not found")
 
 type Repository struct {
 	db *gorm.DB
@@ -30,10 +31,8 @@ func (r *Repository) Exists(ctx context.Context, questionID int64) (bool, error)
 	var question postgres.GORMQuestion
 
 	err := r.db.WithContext(ctx).Select("id").Where("id = ?", questionID).First(&question).Error
-
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logger.Warn("question does not exist", zap.Int64("id", questionID))
-		return false, nil
+		return false, ErrNotFound
 	}
 
 	if err != nil {
@@ -48,14 +47,13 @@ func (r *Repository) Create(ctx context.Context, text string) (domain.Base, erro
 		Text: text,
 	}
 
-	if err := r.db.WithContext(ctx).Create(&question).Error; err != nil {
+	err := r.db.WithContext(ctx).Create(&question).Error
+	if err != nil {
 		logger.Warn("question create error", zap.Error(err))
 		return domain.Base{}, err
 	}
 
-	return domain.Base{
-		ID: question.ID,
-	}, nil
+	return domain.Base{ID: question.ID}, nil
 }
 
 func (r *Repository) List(ctx context.Context) ([]domain.Question, error) {
@@ -75,8 +73,9 @@ func (r *Repository) Delete(ctx context.Context, questionID int64) error {
 		logger.Warn("question delete error", zap.Error(res.Error))
 		return res.Error
 	}
+
 	if res.RowsAffected == 0 {
-		return fmt.Errorf("question with id %d not found", questionID)
+		logger.Warn("question not found", zap.Int64("id", questionID))
 	}
 	return nil
 }

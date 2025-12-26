@@ -1,10 +1,7 @@
 package handlers
 
-import "net/http"
-
 const (
-	questionsPath = "/questions"
-	answersPath   = "/answers"
+	answersPath = "/answers"
 )
 
 func (h *Handler) setupRoutes() {
@@ -13,25 +10,16 @@ func (h *Handler) setupRoutes() {
 }
 
 func (h *Handler) setupQuestionsRoutes() {
-	questionsRouter := h.Questions.RegisterRoutes()
+	h.router.HandleFunc("GET /questions/", h.Questions.GetQuestions)
+	h.router.HandleFunc("POST /questions/", h.Questions.CreateQuestion)
 
-	questionsByIDeRouter := h.RegisterQuestionByIDRoutes()
+	h.router.HandleFunc("GET /questions/{id}", h.QAHandler.GetQuestionWithAnswers)
+	h.router.HandleFunc("DELETE /questions/{id}", h.Questions.Delete)
 
-	h.router.Handle(questionsPath+"/", http.StripPrefix(questionsPath, questionsRouter))
-	h.router.Handle(questionsPath+"/{id}", http.StripPrefix(questionsPath, questionsByIDeRouter))
+	h.router.HandleFunc("POST /questions/{id}/answers/", h.QAHandler.CreateAnswer)
 }
 
 func (h *Handler) setupAnswersRoutes() {
 	answersRouter := h.Answers.RegisterRoutes()
-	h.router.Handle(answersPath+"/", http.StripPrefix(answersPath, answersRouter))
-}
-
-func (h *Handler) RegisterQuestionByIDRoutes() *http.ServeMux {
-	r := http.NewServeMux()
-
-	r.HandleFunc(http.MethodGet+" "+"/{id}", h.QAHandler.GetQuestionWithAnswers)
-	r.HandleFunc(http.MethodPost+" "+"/{id}", h.QAHandler.CreateAnswer)
-	r.HandleFunc(http.MethodDelete+" "+"/{id}", h.Questions.Delete)
-
-	return r
+	h.router.Handle("/answers/", answersRouter)
 }
