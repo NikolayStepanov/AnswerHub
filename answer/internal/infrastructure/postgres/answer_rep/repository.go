@@ -19,7 +19,7 @@ func NewRepository(db *gorm.DB) *Repository {
 
 func (r *Repository) Get(ctx context.Context, id int64) (domain.Answer, error) {
 	var answer postgres.GORMAnswer
-	err := r.db.First(&answer, "id = ?", id).Error
+	err := r.db.WithContext(ctx).First(&answer, "id = ?", id).Error
 	if err != nil {
 		return domain.Answer{}, err
 	}
